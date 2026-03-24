@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카카오페이 광고센터 - TMS 이미지 제작</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #111111;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Nav */
+        .top-nav {
+            height: 56px;
+            background-color: #111111;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-logo-icon {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-logo-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+        }
+        .nav-logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .nav-title {
+            font-size: 16px;
+            font-weight: 400;
+            color: #dddddd;
+            border-left: 1px solid #444444;
+            padding-left: 14px;
+            margin-left: 10px;
+        }
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 13px;
+        }
+        .btn-logout {
+            border: 1px solid #444;
+            background: none;
+            color: #ffffff;
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-logout:hover { background: #333; }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            flex: 1;
+            padding-bottom: 80px; /* footer space */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: #fafafa;
+            border-right: 1px solid #eeeeee;
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 24px 24px 16px 24px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .account-selector {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .account-selector svg {
+            width: 14px; height: 14px;
+            color: #666;
+        }
+        .user-role {
+            font-size: 12px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+        }
+        .role-badge {
+            width: 18px; height: 18px;
+            background-color: #e0f2fe;
+            color: #0284c7;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .role-dot {
+            width: 6px; height: 6px;
+            background: #0284c7;
+            border-radius: 50%;
+        }
+
+        .side-menu {
+            list-style: none;
+            padding: 24px;
+        }
+        .side-menu li {
+            font-size: 15px;
+            color: #777777;
+            margin-bottom: 24px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .side-menu li:hover { color: #111; }
+        .side-menu li.active {
+            color: #111111;
+            font-weight: 700;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            right: -14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            background: #ffffff;
+            border: 1px solid #eeeeee;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            z-index: 10;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            background: #ffffff;
+            padding: 40px 60px;
+            max-width: 1100px;
+        }
+        .page-header {
+            margin-bottom: 40px;
+        }
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            letter-spacing: -0.5px;
+        }
+        .tags-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tag-badge {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 14px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .tag-blue { background: #e0f2fe; color: #0284c7; }
+        .tag-gray { background: #f1f5f9; color: #475569; }
+        .tag-text { font-size: 13px; font-weight: 500; color: #333; margin-left: 6px; }
+
+        /* Split Layout */
+        .content-grid {
+            display: flex;
+            border-top: 1px solid #eeeeee;
+            margin-top: 24px;
+        }
+        .form-section {
+            flex: 1;
+            padding: 40px 48px 40px 0;
+            border-right: 1px solid #eeeeee;
+        }
+        .preview-section {
+            width: 440px;
+            padding: 40px 0 40px 48px;
+            background: #fafafa;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 32px;
+        }
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #111;
+        }
+        .required { color: #ef4444; margin-left:2px; font-weight:600;}
+        
+        .form-input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 13px;
+            outline: none;
+            transition: 0.2s;
+            color: #333;
+        }
+        .form-input:focus { border-color: #94a3b8; }
+        .form-textarea {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            outline: none;
+            transition: 0.2s;
+            resize: none;
+            min-height: 80px;
+            color: #333;
+        }
+        .form-textarea:focus { border-color: #94a3b8; }
+        .form-textarea.tall { min-height: 120px; }
+        
+        .char-count {
+            text-align: right;
+            font-size: 11px;
+            color: #999;
+            margin-top: 6px;
+            font-weight: 500;
+        }
+
+        /* Image Upload Box */
+        .image-upload-wrapper {
+            border: 1px dashed #cccccc;
+            border-radius: 6px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            background: #ffffff;
+        }
+        .image-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .image-thumb-icon {
+            width: 40px; height: 40px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            display: flex; align-items:center; justify-content:center;
+            font-size: 18px;
+            position: relative;
+        }
+        .image-thumb-icon::after {
+            content:'❤️';
+            position:absolute; bottom:-2px; right:-2px;
+            font-size:10px;
+        }
+        .image-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: #333;
+        }
+        .btn-delete {
+            font-size: 13px;
+            color: #666;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-weight: 500;
+        }
+        .upload-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .spec-list {
+            list-style: none;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.7;
+            padding-left: 12px;
+        }
+        .spec-list li { position: relative; }
+        .spec-list li::before {
+            content: '';
+            width: 3px; height: 3px;
+            background: #888;
+            border-radius: 50%;
+            position: absolute;
+            left: -8px; top: 8px;
+        }
+        .btn-upload {
+            background: #64748b;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-upload:hover { background: #475569; }
+
+        /* Preview Area */
+        .preview-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #111;
+        }
+        .preview-card {
+            background: #ffffff;
+            width: 340px;
+            border-radius: 20px;
+            padding: 32px 24px 24px 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            margin: 0 auto;
+            position: relative;
+            border: 1px solid #f1f5f9;
+        }
+        .ad-badge {
+            position: absolute;
+            top: 20px; right: 20px;
+            background: #f1f1f1;
+            color: #aaaaaa;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .preview-hero {
+            height: 160px;
+            background-color: #e2e8f0;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+        .preview-main-copy {
+            font-size: 22px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.35;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+            color: #111;
+        }
+        .preview-sub-copy {
+            font-size: 14px;
+            color: #666666;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .preview-fineprint {
+            font-size: 9px;
+            color: #cccccc;
+            text-align: center;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            transform: scale(0.9);
+        }
+        .preview-btn {
+            width: 100%;
+            background: #FFE300;
+            border: none;
+            padding: 14px 0;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-bottom: 16px;
+            color: #111;
+        }
+        .preview-close {
+            text-align: center;
+            font-size: 13px;
+            color: #888888;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .preview-notice {
+            text-align: center;
+            font-size: 12px;
+            color: #aaaaaa;
+            margin-top: 32px;
+            line-height: 1.5;
+        }
+
+        /* Fixed Bottom Bar */
+        .bottom-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 80px;
+            background: #ffffff;
+            border-top: 1px solid #eeeeee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            z-index: 100;
+        }
+        .btn-action {
+            padding: 14px 32px;
+            font-size: 15px;
+            font-weight: 700;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-cancel { background: #f1f5f9; color: #333; }
+        .btn-cancel:hover { background: #e2e8f0; }
+        .btn-submit { background: #FFE300; color: #111; }
+        .btn-submit:hover { background: #facc15; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <header class="top-nav">
+        <div class="nav-left">
+            <div class="nav-logo-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3c-5.5 0-10 3.6-10 8 0 2.5 1.4 4.8 3.7 6.2l-1.3 4c-.1.2.1.4.3.3l4.6-2.9c.9.2 1.8.3 2.7.3 5.5 0 10-3.6 10-8s-4.5-8-10-8z"/>
+                </svg>
+                <div class="nav-logo-text">pay</div>
+            </div>
+            <div class="nav-title">광고센터</div>
+        </div>
+        <div class="nav-user">
+            <span>id****id@naver.com</span>
+            <button class="btn-logout">로그아웃</button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="account-selector">
+                    카카오페이_2023240
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                <div class="user-role">
+                    <div class="role-badge"><div class="role-dot"></div></div>
+                    마스터
+                </div>
+            </div>
+
+            <ul class="side-menu">
+                <li class="active">광고 소재 제작</li>
+                <li>광고계정 관리</li>
+            </ul>
+
+            <div class="sidebar-toggle">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            
+            <div class="page-header">
+                <h1>TMS 이미지 제작</h1>
+                <div class="tags-row">
+                    <div class="tag-badge tag-blue">캠페인</div>
+                    <div class="tag-text">성과형 캠페인</div>
+                    
+                    <span style="color:#ddd; margin: 0 4px;">|</span>
+                    
+                    <div class="tag-badge tag-blue">광고 상품</div>
+                    <div class="tag-text">TMS (채널 메시지)</div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                
+                <!-- Form Inputs Section -->
+                <div class="form-section">
+                    
+                    <div class="form-group" style="margin-top:-16px">
+                        <label class="form-label">소재 이름<span class="required">*</span></label>
+                        <input type="text" class="form-input" value="송금 컨버전 브릿지 20230239">
+                        <div class="char-count">0/25</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">메인 카피<span class="required">*</span></label>
+                        <textarea class="form-textarea">말로 다 못하는 말
+커피로 전해요</textarea>
+                        <div class="char-count">0/23</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">서브 카피</label>
+                        <input type="text" class="form-input" value="5월에 스벅 이용하면 40% 즉시 할인">
+                        <div class="char-count">0/22</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">안내 문구</label>
+                        <textarea class="form-textarea">최초 1회 한도 지급 갱신시
+보합료가 인상됩니다.</textarea>
+                        <div class="char-count">0/10</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">버튼 명<span class="required">*</span></label>
+                        <input type="text" class="form-input" value="스타벅스 바로가기">
+                        <div class="char-count">0/13</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">이미지<span class="required">*</span></label>
+                        <div class="image-upload-wrapper">
+                            <div class="image-info">
+                                <div class="image-thumb-icon">☕️</div>
+                                <div class="image-name">2025_sprin_event_fin.png</div>
+                            </div>
+                            <button class="btn-delete">삭제</button>
+                        </div>
+                        <div class="upload-meta">
+                            <ul class="spec-list">
+                                <li>파일 형식 : PNG</li>
+                                <li>용량 : 1MB 이하</li>
+                                <li>1371 x 1218px</li>
+                            </ul>
+                            <button class="btn-upload">+ 이미지 업로드</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">랜딩URL<span class="required">*</span></label>
+                        <input type="text" class="form-input" value="https://www.kakaopay.co.kr">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">심사 참고사항</label>
+                        <textarea class="form-textarea tall">잘 부탁드립니다</textarea>
+                        <div class="char-count">0/500</div>
+                    </div>
+
+                </div>
+
+                <!-- Live Preview Section -->
+                <div class="preview-section">
+                    <div class="preview-title">미리보기</div>
+                    
+                    <div class="preview-card">
+                        <div class="ad-badge">AD</div>
+                        
+                        <div class="preview-hero"></div>
+
+                        <div class="preview-main-copy">
+                            말로 다 못하는 말<br>
+                            커피로 전해요
+                        </div>
+
+                        <div class="preview-sub-copy">
+                            5월에 스벅 이용하면 40% 즉시 할인
+                        </div>
+
+                        <div class="preview-fineprint">
+                            일어어~ 우룩질입구십립 다정샤이록질입구십질입성시 우록질입구십<br>
+                            일어어~ 우룩질입구십립 다정샤이록질입구십질입성시 우록질입구십
+                        </div>
+
+                        <button class="preview-btn">스타벅스 바로가기</button>
+                        
+                        <div class="preview-close">
+                            닫기 X
+                        </div>
+                    </div>
+
+                    <div class="preview-notice">
+                        사용자의 디바이스와 기기 설정에 따라<br>
+                        실제 노출 화면과 다를 수 있어요.
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Fixed Footer Actions -->
+    <div class="bottom-bar">
+        <button class="btn-action btn-cancel">취소</button>
+        <button class="btn-action btn-submit">다시 심사 요청하기</button>
+    </div>
+
+</body>
+</html>

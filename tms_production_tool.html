@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>카카오페이 광고센터 - 통합 제작기</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, sans-serif; }
+        body { background-color: #ffffff; color: #111111; overflow-x: hidden; display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* Top Nav */
+        .top-nav {
+            height: 56px; background-color: #111111; color: #ffffff; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 1000;
+        }
+        .nav-left { display: flex; align-items: center; gap: 12px; }
+        .nav-logo-icon {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-logo-icon svg {
+            width: 24px;
+            height: 24px;
+            fill: #ffffff;
+        }
+        .nav-logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+        }
+        .nav-title {
+            font-size: 16px;
+            font-weight: 400;
+            color: #dddddd;
+            border-left: 1px solid #444444;
+            padding-left: 14px;
+            margin-left: 10px;
+        }
+        .form-input {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 13px;
+            outline: none;
+            transition: 0.2s;
+            color: #333;
+        }
+        .form-input:focus { border-color: #94a3b8; }
+        .form-textarea {
+            width: 100%;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            outline: none;
+            transition: 0.2s;
+            resize: none;
+            min-height: 80px;
+            color: #333;
+        }
+        .form-textarea:focus { border-color: #94a3b8; }
+        .nav-user { display: flex; align-items: center; gap: 20px; font-size: 13px; }
+        .btn-logout { border: 1px solid #444; background: none; color: #ffffff; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .btn-logout:hover { background: #333; }
+
+        /* Layout */
+        .app-container { display: flex; flex: 1; padding-bottom: 80px; }
+
+        /* Sidebar */
+        .sidebar { width: 250px; background: #fafafa; border-right: 1px solid #eeeeee; position: relative; flex-shrink: 0; }
+        .sidebar-header { padding: 24px 24px 16px 24px; border-bottom: 1px solid #eee; }
+        .account-selector { font-size: 14px; font-weight: 600; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .account-selector svg { width: 14px; height: 14px; color: #666; }
+        .user-role { font-size: 12px; color: #333; display: flex; align-items: center; gap: 6px; font-weight: 600; }
+        .role-badge { width: 18px; height: 18px; background-color: #e0f2fe; color: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .role-dot { width: 6px; height: 6px; background: #0284c7; border-radius: 50%; }
+        .side-menu { list-style: none; padding: 24px; }
+        .side-menu li { font-size: 15px; color: #777777; margin-bottom: 24px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px;}
+        .side-menu li:hover { color: #111; }
+        .side-menu li.active { color: #111111; font-weight: 700; }
+
+        /* Main Content */
+        .main-content { flex: 1; background: #ffffff; padding: 40px 60px; max-width: 1200px; }
+        .page-header { margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .header-left h1 { font-size: 24px; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.5px; }
+        .tags-row { display: flex; align-items: center; gap: 12px; }
+        .tag-badge { font-size: 12px; padding: 4px 12px; border-radius: 14px; font-weight: 600; display: inline-flex; }
+        .tag-blue { background: #e0f2fe; color: #0284c7; }
+        .tag-gray { background: #f1f5f9; color: #475569; }
+        .tag-text { font-size: 13px; font-weight: 500; color: #333; margin-left: 6px; }
+
+        /* Dimension Tabs */
+        .tab-container { display: flex; background: #f1f5f9; padding: 4px; border-radius: 8px; }
+        .tab { text-align: center; padding: 8px 16px; font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer; border-radius: 6px; transition: all 0.2s; }
+        .tab.active { background: #ffffff; color: #0f172a; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+        /* Split Layout */
+        .content-grid { display: flex; border-top: 1px solid #eeeeee; margin-top: 24px; }
+        .form-section { flex: 1; padding: 32px 48px 32px 0; border-right: 1px solid #eeeeee; }
+        .preview-section { width: 440px; padding: 32px 0; background: #fafafa; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+
+        /* Forms */
+        .section-divider { border-top: 1px solid #f1f5f9; margin: 32px 0; }
+        .section-title { font-size: 15px; font-weight: 700; color: #111; margin-bottom: 16px; display: block; padding-top: 8px; }
+        .form-group { margin-bottom: 32px; }
+        .item-label { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; margin-bottom: 10px; color: #555; }
+        .item-desc { font-size: 12px; color: #888; margin-top: 8px; margin-bottom: 12px; line-height: 1.5; white-space: pre-wrap; }
+
+        .selection-box { border: 1px solid #e2e8f0; background: #ffffff; border-radius: 6px; padding: 14px 16px; margin-bottom: 12px; display: flex; align-items: center; justify-content: flex-start; }
+
+        /* File Upload */
+        input[type="file"] { display: none; }
+        .custom-file-upload { border: 1px solid #e2e8f0; display: flex; justify-content: center; align-items: center; padding: 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; color: #555; background: #fafafa; transition: all 0.2s; }
+        .custom-file-upload.secondary { background: #fafafa; }
+        .custom-file-upload:hover { border-color: #cbd5e1; background: #f1f5f9; }
+
+        /* Toggles */
+        .toggle-switch { display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 16px;}
+        .toggle-switch input { display: none; }
+        .track { width: 40px; height: 22px; background: #e2e8f0; border-radius: 20px; position: relative; transition: 0.3s; }
+        .track::after { content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .toggle-switch input:checked + .track { background: #111; }
+        .toggle-switch input:checked + .track::after { transform: translateX(18px); }
+
+        .radio-group { display: flex; gap: 16px; margin-bottom: 24px;}
+        .radio-label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: #555; cursor: pointer; font-weight: 500;}
+
+        /* Color Picker */
+        .color-row { display: flex; gap: 8px; align-items: center; margin-bottom: 12px;}
+        input[type="color"] { -webkit-appearance: none; border: none; width: 44px; height: 44px; cursor: pointer; background: none; padding: 0; border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 8px; }
+        .hex-input { flex: 1; border: 1px solid #ddd; border-radius: 8px; height: 44px; padding: 0 16px; font-size: 14px; font-family: monospace; color: #111; background: #fff; outline:none; }
+        .apply-btn { background: #FFE300; border: none; color: #111; padding: 12px 16px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%;}
+        .apply-btn:hover { background: #facc15; }
+
+        /* Device Mockup */
+        .preview-title { width: 340px; font-size: 15px; font-weight: 500; margin-bottom: 24px; color: #555; text-align: left; }
+        .device-mockup { width: 340px; background: #b2c7d9; border-radius: 36px; border: 8px solid #f8f9fa; box-shadow: 0 10px 30px rgba(0,0,0,0.08); position: relative; overflow: hidden; display: flex; flex-direction: column; filter: drop-shadow(0 0 1px rgba(0,0,0,0.1));}
+        .device-header { padding: 48px 24px 16px 24px; display: flex; align-items: center; justify-content: space-between; color: #333;}
+        .device-header-title { font-size: 15px; font-weight: 700; display:flex; gap:120px;}
+        .device-header-icons { display: flex; gap: 12px; font-size: 14px; font-weight:bold;}
+        .device-body { padding: 0 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+        .sender-info { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .sender-icon { width: 32px; height: 32px; background: #FFE300; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; }
+        .sender-name { font-size: 13px; font-weight: 700; color: #222; margin-top: 1px; }
+        
+        .message-bubble { background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04); width: 100%; position: relative;}
+        .bubble-texts { padding: 16px; background: #fff; }
+        .bubble-desc { font-size: 13px; color: #555; line-height: 1.5; margin-bottom: 12px; letter-spacing: -0.3px;}
+        .bubble-btn { width: 100%; background: #f1f5f9; border: none; padding: 12px 0; border-radius: 8px; font-size: 13px; font-weight: 600; color: #333; cursor: pointer; }
+
+        .device-footer { margin-top: 16px; background: #fff; padding: 12px 16px 32px 16px; display: flex; align-items: center; gap: 12px; border-top: 1px solid #e1e1e1;}
+        .device-input { flex: 1; background: #f1f5f9; height: 36px; border-radius: 18px; border: 1px solid #e2e8f0; margin-left:2px; margin-right:4px;}
+
+
+        /* ORIGINAL CANVAS LOGIC CSS -> NESTED INSIDE MESSAGE BUBBLE */
+        .canvas-container { width: 100%; position: relative; overflow: hidden; background-color: #cbd5e1; background-image: radial-gradient(#94a3b8 1px, transparent 1px); background-size: 20px 20px; display:flex;}
+        .canvas-scale-wrapper { width: 800px; height: 800px; transform-origin: top left; }
+        .checkerboard-bg { background-color: #ffffff; background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%), linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e2e8f0 75%), linear-gradient(-45deg, transparent 75%, #e2e8f0 75%); background-size: 40px 40px; background-position: 0 0, 0 20px, 20px -20px, -20px 0px; }
+        .tms-canvas { width: 800px; height: 800px; background: #1e293b; position: relative; overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,0.2); transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s, box-shadow 0.3s; }
+        .safe-area-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; z-index: 50; border: 80px solid rgba(255, 0, 255, 0.75); box-sizing: border-box; }
+        .tms-canvas.fit-mode { background: transparent !important; box-shadow: none !important; }
+        .bg-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display:flex; justify-content:center; align-items:center;}
+        .bg-layer img { position: absolute; top: 0; left: 0; min-width: 800px; cursor: grab; transform-origin: center center; display: none; object-fit: contain; }
+        .bg-layer img:active { cursor: grabbing; }
+        .content-layer { position: absolute; top: 0; left: 0; z-index: 10; width: 100%; height: 100%; padding: 70px 60px 30px 60px; display: flex; flex-direction: column; align-items: flex-start; pointer-events: none; transition: padding 0.3s; }
+        .content-layer > * { pointer-events: auto; }
+        .tms-layout { display: flex; flex: 1 0 0; flex-direction: column; justify-content: space-between; align-items: flex-start; width: 100%; height: 100%;}
+        .top-section { display: flex; width: 680px; flex-direction: column; align-items: flex-start; gap: 30px; }
+        .logo-area { width: 680px; height: 40px; display: flex; align-items: center; justify-content: flex-start; }
+        .logo-img { height: 100%; width: auto; max-width: 100%; object-fit: contain; }
+        .logo-placeholder { color: rgba(255,255,255,0.3); font-size: 15px; font-weight: 600; border: 1px dashed rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 4px; white-space: nowrap;}
+        .text-area { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; transition: 0.3s; }
+        .text-area.swapped { flex-direction: column-reverse; }
+        [contenteditable] { outline: none; border-radius: 4px; border: 1px solid transparent; transition: 0.2s; }
+        [contenteditable]:hover { border-color: rgba(255,255,255,0.2); }
+        [contenteditable]:focus { background-color: rgba(0,0,0,0.15); border-color: rgba(255,255,255,0.4); }
+        [contenteditable].error { text-decoration: underline wavy #ff4d4d; }
+        .main-title { width: 680px; color: #ffffff; font-weight: 800; line-height: 1.25; font-size: 84px; white-space: pre-wrap; transition: all 0.2s; letter-spacing: -1px; }
+        .sub-title { width: 680px; color: #ffffff; font-weight: 600; line-height: 1.2; font-size: 46px; white-space: pre-wrap; transition: all 0.2s; letter-spacing: -0.5px; }
+        .copyright-text { display: flex; width: 680px; height: 66px; flex-direction: column; justify-content: flex-end; color: rgba(255, 255, 255, 0.40); font-size: 27px; font-weight: 500; line-height: 1.2; white-space: pre-wrap; letter-spacing: -0.5px; }
+        .loading-glass { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; font-weight: 700; font-size: 16px; color: #3b82f6; backdrop-filter: blur(4px); }
+        .loading-glass.show { display: flex; }
+
+        /* Actions Bottom */
+        .actions-panel { position: fixed; bottom: 0; left: 0; right: 0; height: 80px; background: #ffffff; border-top: 1px solid #eeeeee; display: flex; align-items: center; justify-content: center; gap: 12px; z-index: 200; }
+        .btn-export { padding: 14px 28px; font-size: 15px; font-weight: 700; border-radius: 24px; border: none; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .btn-export.primary { background: #111; color: #fff; }
+        .btn-export.primary:hover { background: #333; }
+        .btn-export.secondary { background: #f1f5f9; color: #111; }
+        .btn-export.secondary:hover { background: #e2e8f0; }
+        .btn-export:disabled { background: #e5e5e5; color: #aaa; cursor: not-allowed; border: none; }
+        .error-message { position: absolute; top: -40px; background: #fef2f2; color: #ef4444; font-size: 12px; font-weight: 600; padding: 10px 20px; border-radius: 6px; border: 1px solid #fecaca; text-align: center; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .error-message.show { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation -->
+    <header class="top-nav">
+        <div class="nav-left">
+            <div class="nav-logo-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 3c-5.5 0-10 3.6-10 8 0 2.5 1.4 4.8 3.7 6.2l-1.3 4c-.1.2.1.4.3.3l4.6-2.9c.9.2 1.8.3 2.7.3 5.5 0 10-3.6 10-8s-4.5-8-10-8z"/>
+                </svg>
+                <div class="nav-logo-text">pay</div>
+            </div>
+            <div class="nav-title">광고센터 제작 툴</div>
+        </div>
+    </header>
+
+    <div class="app-container">
+        
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="side-menu">
+                <li id="nav-tms" class="active">TMS (채널 메시지) 제작기</li>
+            </ul>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="main-content">
+            
+            <div class="page-header">
+                <div class="header-left">
+                    <h1 id="mainConfigTitle">핏배너 제작기</h1>
+                    <div class="tags-row">
+                        <div class="tag-badge tag-blue">캠페인</div><div class="tag-text">성과형 캠페인</div>
+                        <span style="color:#ddd; margin: 0 4px;">|</span>
+                        <div class="tag-badge tag-blue">광고 상품</div><div class="tag-text">TMS (채널 메시지)</div>
+                    </div>
+                </div>
+                <div class="tab-container" style="display:none;" id="tmsTabContainer">
+                    <div class="tab" data-mode="800">800 × 800 (1:1)</div>
+                    <div class="tab" data-mode="600">800 × 600 (4:3)</div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                
+                <!-- Left Form Inputs -->
+                <div class="form-section">
+                    
+                    <div class="form-group">
+                        <div class="section-title" id="imgUploadTitle">이미지만 업로드 (타이틀 없음)</div>
+                        <div class="item-label" id="bgLabelText">주요 오브젝트 요소 <span id="bgUploadLabel" style="color:#888; font-size:12px;"></span></div>
+                        <label class="custom-file-upload">
+                            <input type="file" id="bgInput" accept="image/*">
+                            + <span id="bgInputText">이미지 올리기</span>
+                        </label>
+                        <div class="item-desc" id="bgDesc">투명 속성의 PNG 이미지를 등록하고 마우스로 드래그해서 위치를 맞추세요. 분홍색 가이드 영역 밖으로 마진을 유지하세요.</div>
+                    </div>
+
+                    <div class="form-group" id="logoUploadArea" style="display:none;">
+                        <div class="item-label">로고 이미지 (투명 PNG)</div>
+                        <label class="custom-file-upload secondary">
+                            <input type="file" id="logoInput" accept="image/*">
+                            + 로고 추가하기
+                        </label>
+                    </div>
+
+                    <div id="layoutSection" style="display:none;" class="form-group">
+                        <div class="section-title">레이아웃 지정</div>
+                        <div class="selection-box">
+                            <label class="toggle-switch" style="margin:0; width:100%;">
+                                <input type="checkbox" id="swapBtn">
+                                <div class="track"></div>
+                                <span style="font-size:13px; font-weight:500; color:#333;">메인/서브 타이틀 순서 반전</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="colorSection" style="display:none;" class="form-group">
+                        <div class="section-title">색상 설정</div>
+                        
+                        <div class="item-label">텍스트 기본 색상</div>
+                        <div class="selection-box">
+                            <div class="radio-group" style="margin:0;">
+                                <label class="radio-label"><input type="radio" name="baseColor" value="#ffffff" checked> 흰색</label>
+                                <label class="radio-label"><input type="radio" name="baseColor" value="#000000"> 검은색</label>
+                            </div>
+                        </div>
+
+                        <div class="item-label" style="margin-top:16px;">심의필 문구 색상 <span style="font-size:11px; font-weight:400; color:#888;">(투명도 40% 고정)</span></div>
+                        <div class="selection-box">
+                            <div class="radio-group" style="margin:0;">
+                                <label class="radio-label"><input type="radio" name="copyColor" value="rgba(255,255,255,0.4)" checked> 흰색</label>
+                                <label class="radio-label"><input type="radio" name="copyColor" value="rgba(0,0,0,0.4)"> 검은색</label>
+                            </div>
+                        </div>
+
+                        <div class="item-label" style="margin-top:24px;">커스텀 포인트 컬러</div>
+                        <div class="item-desc" style="background:transparent; padding:0; margin-top:0;">우측 캔버스에서 타이틀을 직접 더블클릭하여 <strong>텍스트를 입력/수정</strong>할 수 있습니다. 강조할 단어를 <strong>드래그</strong> 한 뒤 아래 <strong>색상 적용</strong>을 눌러주세요.</div>
+                        <div class="color-row">
+                            <input type="color" id="pointPicker" value="#FFE300">
+                            <input type="text" id="pointHex" class="hex-input" value="#FFD700" maxlength="7">
+                        </div>
+                        <button class="apply-btn" id="applyColorBtn">🎨 드래그한 텍스트에 색상 적용하기</button>
+                    </div>
+
+                </div>
+
+                <!-- Live Preview Section nested in Mobile Mockup -->
+                <div class="preview-section">
+                    <div class="preview-title">미리보기</div>
+
+                    <div class="device-mockup">
+                        <div class="device-header" style="position:relative; display:flex; justify-content:space-between; align-items:center;">
+                            <div style="font-weight:bold; font-size:18px; color:#111; cursor:default;">&lt;</div>
+                            <div class="device-header-title" style="position:absolute; left:50%; transform:translateX(-50%); font-size:15px; font-weight:700; color:#111;">카카오페이</div>
+                            <div class="device-header-icons" style="display:flex; gap:14px; font-size:16px;">≡</div>
+                        </div>
+
+                        <div class="device-body">
+                            <div class="sender-info">
+                                <img src="pay_logo.png" alt="pay_logo" style="width:36px; height:36px; border-radius:12px; object-fit:cover; display:block;">
+                                <div class="sender-name">카카오페이</div>
+                            </div>
+                            
+                            <div class="message-bubble">
+                                
+                                <div class="canvas-container">
+                                    <div class="canvas-scale-wrapper checkerboard-bg" id="scaleWrapper">
+                                        
+                                        <!-- REAL BANNER CONTENT -->
+                                        <div id="captureArea" class="tms-canvas fit-mode" style="height: 800px;">
+                                            <div class="safe-area-overlay" id="safeArea" style="display:block;"></div>
+                                            <div class="loading-glass" id="loader">렌더링 중...</div>
+                                            
+                                            <div class="bg-layer" id="bgLayer">
+                                                <img id="bgImg" src="" draggable="false">
+                                            </div>
+                                            
+                                            <div class="content-layer" id="contentLayer">
+                                                <div class="tms-layout" id="tmsLayout" style="display:none;">
+                                                    <div class="top-section" id="topSection">
+                                                        <div class="logo-area" id="logoArea">
+                                                            <img src="" id="logoImg" class="logo-img" style="display:none;" alt="Logo">
+                                                            <span id="logoPlace" class="logo-placeholder">로고 영역</span>
+                                                        </div>
+                                                        <div class="text-area" id="textArea">
+                                                            <div class="main-title" id="editTitle" contenteditable="true" spellcheck="false">메인 타이틀 입력<br>최대 24자</div>
+                                                            <div class="sub-title" id="editSubtitle" contenteditable="true" spellcheck="false">서브 타이틀 영역 (최대15자)</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="copyright-text" id="editCopy" contenteditable="true" spellcheck="false">광고 심의필 제123호</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- END BANNER CONTENT -->
+
+                                    </div>
+                                </div>
+
+                                <div class="bubble-texts">
+                                    <div class="bubble-desc">글자수 띄어쓰기 포함 최대 40자 이내<br>최대 2행까지 작성 가능</div>
+                                    <button class="bubble-btn">이벤트 보기</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="device-footer">
+                            <div style="width:26px;height:26px;border:1.5px solid #bbb;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:18px;font-weight:300;margin-top:-1px;">+</div>
+                            <div class="device-input"></div>
+                            <div style="font-size:22px; color:#bbb; display:flex; align-items:center; margin-top:-2px;">🙂</div>
+                            <div style="font-size:20px; color:#bbb; font-weight:600; display:flex; align-items:center; margin-top:-2px;">#</div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Fixed Footer Actions -->
+    <div class="actions-panel">
+        <div id="errorMsg" class="error-message">글자 수 제한 초과: 메인 24자, 서브 15자를 맞추어주세요.</div>
+        <button class="btn-export secondary" id="btnDlTrans" style="display:none;">배경 제외 투명 PNG 저장</button>
+        <button class="btn-export primary" id="btnDlFull">배경 포함 화면 통합 저장</button>
+    </div>
+
+    <!-- ORIGINAL LOGIC PRESERVED -->
+    <script>
+        const scaleWrapper = document.getElementById('scaleWrapper');
+        const canvasContainer = document.querySelector('.canvas-container');
+        
+        function updateScale() {
+            // Updated to scale inside the mobile bubble
+            const targetW = canvasContainer.clientWidth; 
+            const canvasHeight = (currentApp === 'fit') ? 800 : (currentTmsMode === '600' ? 600 : 800);
+            
+            // 800px is the original size. Scale down to fit the bubble width.
+            const scaleAmount = targetW / 800; 
+            scaleWrapper.style.transform = `scale(${scaleAmount})`;
+            
+            // Force the container height to match the shrunken wrapper
+            canvasContainer.style.height = (canvasHeight * scaleAmount) + 'px';
+        }
+        window.addEventListener('resize', updateScale);
+
+        // DOM Elements
+        const captureArea = document.getElementById('captureArea');
+        const contentLayer = document.getElementById('contentLayer');
+        const tmsLayout = document.getElementById('tmsLayout');
+        const safeArea = document.getElementById('safeArea');
+        
+        const logoUploadArea = document.getElementById('logoUploadArea');
+        const layoutSection = document.getElementById('layoutSection');
+        const colorSection = document.getElementById('colorSection');
+        
+        const mainConfigTitle = document.getElementById('mainConfigTitle');
+        const tmsTabContainer = document.getElementById('tmsTabContainer');
+        const bgUploadLabel = document.getElementById('bgUploadLabel');
+        const bgInputText = document.getElementById('bgInputText');
+        const bgDesc = document.getElementById('bgDesc');
+        const bgLabelText = document.getElementById('bgLabelText');
+        const imgUploadTitle = document.getElementById('imgUploadTitle');
+        const btnDlFull = document.getElementById('btnDlFull');
+        const btnDlTrans = document.getElementById('btnDlTrans');
+        
+        const mainTitle = document.getElementById('editTitle');
+        const subTitle = document.getElementById('editSubtitle');
+        const copyright = document.getElementById('editCopy');
+        const textArea = document.getElementById('textArea');
+        const bgImg = document.getElementById('bgImg');
+
+        // APP SWITCHER
+        const navTms = document.getElementById('nav-tms');
+        
+        let currentApp = 'tms'; 
+        let currentTmsMode = '800'; 
+
+        if(navTms) navTms.addEventListener('click', () => selectApp('tms'));
+
+        function clearCanvasImages() {
+            bgImg.src = ''; bgImg.style.display = 'none';
+            document.getElementById('bgInput').value = '';
+            
+            const logoImg = document.getElementById('logoImg');
+            if(logoImg) {
+                logoImg.src = ''; logoImg.style.display = 'none';
+                document.getElementById('logoInput').value = '';
+                document.getElementById('logoArea').querySelector('.logo-placeholder').style.display = 'flex';
+            }
+        }
+
+        function selectApp(app) {
+            currentApp = app;
+            const navTmsElem = document.getElementById('nav-tms');
+            const navFitElem = document.getElementById('nav-fit');
+            if(navTmsElem) navTmsElem.classList.remove('active');
+            if(navFitElem) navFitElem.classList.remove('active');
+            clearCanvasImages(); 
+
+            if (app === 'fit') {
+                if(navFitElem) navFitElem.classList.add('active');
+                mainConfigTitle.innerText = '핏배너 제작기';
+                tmsTabContainer.style.display = 'none';
+                
+                captureArea.style.height = '800px';
+                captureArea.classList.add('fit-mode');
+                scaleWrapper.classList.add('checkerboard-bg');
+                safeArea.style.display = 'block'; 
+                tmsLayout.style.display = 'none'; 
+                
+                layoutSection.style.display = 'none';
+                colorSection.style.display = 'none';
+                logoUploadArea.style.display = 'none';
+                imgUploadTitle.innerText = "이미지만 업로드 (타이틀 없음)";
+                
+                bgUploadLabel.innerText = ``;
+                bgLabelText.childNodes[0].nodeValue = "주요 오브젝트 요소 ";
+                bgInputText.innerText = "누끼 이미지 추가";
+                bgDesc.innerText = "투명 속성의 PNG 이미지를 등록하고 마우스로 드래그해서 위치를 맞추세요.\n* 분홍색 가이드 영역은 잘리거나 가려질 수 있는 테두리 여백이므로, 주요 요소가 들어가지 않도록 마진을 유지하세요.";
+                
+                btnDlTrans.style.display = 'none';
+                btnDlFull.innerText = "핏배너 완성본 전체 저장";
+
+            } else {
+                if(navTmsElem) navTmsElem.classList.add('active');
+                mainConfigTitle.innerText = 'TMS (채널 메시지) 제작기';
+                tmsTabContainer.style.display = 'flex';
+                document.querySelector(`.tab[data-mode="${currentTmsMode}"]`).click();
+            }
+            updateScale();
+        }
+
+        // TABS
+        const tabs = document.querySelectorAll('.tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const mode = tab.dataset.mode;
+                if(currentTmsMode !== mode) clearCanvasImages(); 
+                
+                currentTmsMode = mode;
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                captureArea.classList.remove('fit-mode');
+                scaleWrapper.classList.remove('checkerboard-bg');
+                safeArea.style.display = 'none'; 
+                
+                tmsLayout.style.display = 'flex'; 
+                layoutSection.style.display = 'block'; 
+                colorSection.style.display = 'block'; 
+                logoUploadArea.style.display = 'block';
+                imgUploadTitle.innerText = "이미지 & 로고 업로드";
+                btnDlTrans.style.display = 'block';
+                btnDlFull.innerText = "배경 포함 화면 통합 저장";
+
+                if (currentTmsMode === '800') {
+                    captureArea.style.height = '800px';
+                    bgUploadLabel.innerText = `(800x800)`;
+                    bgInputText.innerText = "파일 선택하기";
+                    bgLabelText.childNodes[0].nodeValue = "배경 이미지 ";
+                    bgDesc.style.display = 'none';
+                    if(bgImg.style.display !== 'none') bgImg.style.minHeight = '800px';
+                } 
+                else if (currentTmsMode === '600') {
+                    captureArea.style.height = '600px';
+                    bgUploadLabel.innerText = `(800x600)`;
+                    bgInputText.innerText = "파일 선택하기";
+                    bgLabelText.childNodes[0].nodeValue = "배경 이미지 ";
+                    bgDesc.style.display = 'none';
+                    if(bgImg.style.display !== 'none') bgImg.style.minHeight = '600px';
+                }
+                
+                checkLimits();
+                updateScale();
+            });
+        });
+
+        // TEXT LIMITS
+        const MAX_MAIN = 24;
+        const MAX_SUB = 15;
+        const errorMsg = document.getElementById('errorMsg');
+
+        function checkLimits() {
+            if(currentApp === 'fit') return;
+            const mainLen = mainTitle.innerText.replace(/[\n\r]/g, '').length;
+            const subLen = subTitle.innerText.replace(/[\n\r]/g, '').length;
+            
+            const isError = (mainLen > MAX_MAIN) || (subLen > MAX_SUB);
+            
+            if (mainLen > MAX_MAIN) mainTitle.classList.add('error'); else mainTitle.classList.remove('error');
+            if (subLen > MAX_SUB) subTitle.classList.add('error'); else subTitle.classList.remove('error');
+
+            if (isError) {
+                btnDlFull.disabled = true; btnDlTrans.disabled = true;
+                errorMsg.classList.add('show');
+            } else {
+                btnDlFull.disabled = false; btnDlTrans.disabled = false;
+                errorMsg.classList.remove('show');
+            }
+
+            if (currentTmsMode === '800') {
+                if (mainLen >= 21) { mainTitle.style.fontSize = '64px'; mainTitle.style.lineHeight = '1.25'; subTitle.style.fontSize = '42px'; textArea.style.gap = '20px'; } 
+                else if (mainLen >= 18) { mainTitle.style.fontSize = '72px'; mainTitle.style.lineHeight = '1.25'; subTitle.style.fontSize = '46px'; textArea.style.gap = '20px'; } 
+                else { mainTitle.style.fontSize = '84px'; mainTitle.style.lineHeight = '1.25'; subTitle.style.fontSize = '46px'; textArea.style.gap = '20px'; }
+            } else if (currentTmsMode === '600') {
+                if (mainLen >= 21) { mainTitle.style.fontSize = '58px'; mainTitle.style.lineHeight = '68px'; subTitle.style.fontSize = '36px'; textArea.style.gap = '19px'; } 
+                else if (mainLen >= 18) { mainTitle.style.fontSize = '64px'; mainTitle.style.lineHeight = '75px'; subTitle.style.fontSize = '42px'; textArea.style.gap = '21px'; } 
+                else { mainTitle.style.fontSize = '72px'; mainTitle.style.lineHeight = '84px'; subTitle.style.fontSize = '42px'; textArea.style.gap = '24px'; }
+            }
+        }
+
+        [mainTitle, subTitle, copyright].forEach(el => {
+            el.addEventListener('input', checkLimits);
+            el.addEventListener('paste', (e) => {
+                e.preventDefault();
+                let text = (e.originalEvent || e).clipboardData.getData('text/plain');
+                document.execCommand('insertText', false, text);
+            });
+        });
+        checkLimits();
+
+        // COLORS
+        document.getElementsByName('baseColor').forEach(radio => radio.addEventListener('change', (e) => { mainTitle.style.color = e.target.value; subTitle.style.color = e.target.value; }));
+        document.getElementsByName('copyColor').forEach(radio => radio.addEventListener('change', (e) => { copyright.style.color = e.target.value; }));
+        
+        const swapBtn = document.getElementById('swapBtn');
+        swapBtn.addEventListener('change', (e) => { if (e.target.checked) textArea.classList.add('swapped'); else textArea.classList.remove('swapped'); });
+
+        const pointPicker = document.getElementById('pointPicker');
+        const pointHex = document.getElementById('pointHex');
+        const applyBtn = document.getElementById('applyColorBtn');
+        pointPicker.addEventListener('input', (e) => { pointHex.value = e.target.value; });
+        pointHex.addEventListener('input', (e) => { let val = e.target.value; if(!val.startsWith('#')) val = '#' + val; if(/^#[0-9A-F]{6}$/i.test(val)) pointPicker.value = val; });
+        applyBtn.addEventListener('mousedown', (e) => { e.preventDefault(); document.execCommand('styleWithCSS', false, true); document.execCommand('foreColor', false, pointPicker.value); checkLimits(); });
+
+        // UPLOAD & DRAG
+        const bgInput = document.getElementById('bgInput');
+        const logoInput = document.getElementById('logoInput');
+        
+        bgInput.addEventListener('change', (e) => {
+            if(e.target.files[0]) {
+                const url = URL.createObjectURL(e.target.files[0]);
+                bgImg.src = url;
+                bgImg.style.display = 'block';
+                bgImg.onload = () => {
+                    if (currentApp === 'fit') {
+                        bgImg.style.minWidth = '0'; bgImg.style.maxWidth = '640px'; bgImg.style.maxHeight = '640px';
+                    } else {
+                        bgImg.style.minWidth = '800px';
+                        bgImg.style.minHeight = currentTmsMode === '600' ? '600px' : '800px';
+                        bgImg.style.maxWidth = 'none'; bgImg.style.maxHeight = 'none';
+                    }
+                    const canvasHeight = (currentApp === 'fit') ? 800 : (currentTmsMode === '600' ? 600 : 800);
+                    bgImg.style.top = (canvasHeight - bgImg.offsetHeight)/2 + 'px';
+                    bgImg.style.left = (800 - bgImg.offsetWidth)/2 + 'px';
+                };
+            }
+        });
+
+        logoInput.addEventListener('change', (e) => {
+            if(e.target.files[0]) {
+                const logoImg = document.getElementById('logoImg');
+                logoImg.src = URL.createObjectURL(e.target.files[0]);
+                logoImg.style.display = 'block';
+                document.getElementById('logoArea').querySelector('.logo-placeholder').style.display = 'none';
+            }
+        });
+
+        let isDragging = false;
+        bgImg.addEventListener('mousedown', (e) => { if(e.button === 0) isDragging = true; });
+        window.addEventListener('mouseup', () => { isDragging = false; });
+        window.addEventListener('mousemove', (e) => {
+            if(!isDragging) return;
+            const containerW = canvasContainer.clientWidth; 
+            const scale = containerW / 800;
+            bgImg.style.top = (parseFloat(bgImg.style.top || 0) + (e.movementY / scale)) + 'px';
+            bgImg.style.left = (parseFloat(bgImg.style.left || 0) + (e.movementX / scale)) + 'px';
+        });
+
+        // DOWNLOAD
+        function captureCanvas(isTransparent) {
+            window.getSelection().removeAllRanges();
+            const editables = captureArea.querySelectorAll('[contenteditable]');
+            editables.forEach(el => el.removeAttribute('contenteditable'));
+
+            let originalBgColor = captureArea.style.backgroundColor;
+            let originalBoxShadow = captureArea.style.boxShadow; 
+            const wasSafeAreaVisible = safeArea.style.display === 'block';
+            safeArea.style.display = 'none';
+
+            if (isTransparent || currentApp === 'fit') {
+                if(isTransparent && currentApp !== 'fit') document.getElementById('bgLayer').style.display = 'none';
+                captureArea.style.backgroundColor = 'transparent';
+                captureArea.style.boxShadow = 'none';
+            }
+
+            const loader = document.getElementById('loader');
+            loader.classList.add('show');
+            
+            const exportHeight = (currentApp === 'fit') ? 800 : (currentTmsMode === '600' ? 600 : 800);
+            const fileName = (currentApp === 'fit') ? 'kakaopay_fitbanner.png' : ((isTransparent || currentApp === 'fit') ? `kakaopay_tms_${currentTmsMode}_transparent.png` : `kakaopay_tms_${currentTmsMode}.png`);
+
+            setTimeout(() => {
+                html2canvas(captureArea, { scale: 1, width: 800, height: exportHeight, useCORS: true, backgroundColor: null }).then(canvas => {
+                    try {
+                        const link = document.createElement('a');
+                        link.download = fileName; link.href = canvas.toDataURL('image/png');
+                        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+                    } catch (err) {
+                        alert('보안 정책(CORS)으로 인해 차단되었습니다. Safari 대신 Chrome이나 Live Server를 이용해주세요.');
+                    }
+                    
+                    editables.forEach(el => el.setAttribute('contenteditable', 'true'));
+                    if (isTransparent || currentApp === 'fit') {
+                        document.getElementById('bgLayer').style.display = 'block';
+                        captureArea.style.backgroundColor = originalBgColor;
+                        captureArea.style.boxShadow = originalBoxShadow; 
+                    }
+                    if (wasSafeAreaVisible) safeArea.style.display = 'block';
+                    loader.classList.remove('show');
+                });
+            }, 100);
+        }
+
+        btnDlFull.addEventListener('click', () => captureCanvas(false));
+        btnDlTrans.addEventListener('click', () => captureCanvas(true));
+
+        setTimeout(() => { 
+            selectApp('tms');
+            updateScale(); 
+        }, 100); // Initialize reliably into TMS mode
+    </script>
+</body>
+</html>
