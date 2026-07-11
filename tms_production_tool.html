@@ -265,6 +265,15 @@
                         </label>
                     </div>
 
+                    <div id="textInputSection" style="display:none;" class="form-group">
+                        <div class="section-title">텍스트 입력</div>
+                        <div class="item-label">메인 카피</div>
+                        <textarea id="mainCopyInput" class="form-textarea" placeholder="메인 카피를 입력해주세요" style="margin-bottom:16px;" maxlength="24"></textarea>
+                        
+                        <div class="item-label">서브 카피</div>
+                        <textarea id="subCopyInput" class="form-textarea" placeholder="서브 카피를 입력해주세요" style="min-height:60px;" maxlength="15"></textarea>
+                    </div>
+
                     <div id="layoutSection" style="display:none;" class="form-group">
                         <div class="section-title">레이아웃 지정</div>
                         <div class="selection-box">
@@ -319,7 +328,7 @@
 
                         <div class="device-body">
                             <div class="sender-info">
-                                <img src="pay_logo.png" alt="pay_logo" style="width:36px; height:36px; border-radius:12px; object-fit:cover; display:block;">
+                                <img id="payLogoImg" alt="pay_logo" style="width:36px; height:36px; border-radius:12px; object-fit:cover; display:block;">
                                 <div class="sender-name">카카오페이</div>
                             </div>
                             
@@ -389,6 +398,25 @@
 
     <!-- ORIGINAL LOGIC PRESERVED -->
     <script>
+        // Generate pay_logo as inline SVG data URL
+        (function() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 204; canvas.height = 204;
+            const ctx = canvas.getContext('2d');
+            // Yellow circle background
+            ctx.fillStyle = '#FFE300';
+            ctx.beginPath();
+            ctx.arc(102, 102, 102, 0, Math.PI * 2);
+            ctx.fill();
+            // Dark text "pay"
+            ctx.fillStyle = '#3A1D1D';
+            ctx.font = 'bold 72px -apple-system, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('pay', 102, 108);
+            document.getElementById('payLogoImg').src = canvas.toDataURL('image/png');
+        })();
+
         const scaleWrapper = document.getElementById('scaleWrapper');
         const canvasContainer = document.querySelector('.canvas-container');
         
@@ -415,6 +443,9 @@
         const logoUploadArea = document.getElementById('logoUploadArea');
         const layoutSection = document.getElementById('layoutSection');
         const colorSection = document.getElementById('colorSection');
+        const textInputSection = document.getElementById('textInputSection');
+        const mainCopyInput = document.getElementById('mainCopyInput');
+        const subCopyInput = document.getElementById('subCopyInput');
         
         const mainConfigTitle = document.getElementById('mainConfigTitle');
         const tmsTabContainer = document.getElementById('tmsTabContainer');
@@ -473,6 +504,7 @@
                 
                 layoutSection.style.display = 'none';
                 colorSection.style.display = 'none';
+                textInputSection.style.display = 'none';
                 logoUploadArea.style.display = 'none';
                 imgUploadTitle.innerText = "이미지만 업로드 (타이틀 없음)";
                 
@@ -511,6 +543,7 @@
                 tmsLayout.style.display = 'flex'; 
                 layoutSection.style.display = 'block'; 
                 colorSection.style.display = 'block'; 
+                textInputSection.style.display = 'block';
                 logoUploadArea.style.display = 'block';
                 imgUploadTitle.innerText = "이미지 & 로고 업로드";
                 btnDlTrans.style.display = 'block';
@@ -580,6 +613,76 @@
                 document.execCommand('insertText', false, text);
             });
         });
+
+        // Initialize textarea values from contenteditable divs
+        mainCopyInput.value = mainTitle.innerText;
+        subCopyInput.value = subTitle.innerText;
+
+        // Input from textarea -> update banner previews
+        mainCopyInput.addEventListener('input', () => {
+            mainTitle.innerText = mainCopyInput.value;
+            checkLimits();
+        });
+        subCopyInput.addEventListener('input', () => {
+            subTitle.innerText = subCopyInput.value;
+            checkLimits();
+        });
+
+        // Focus / selection support for inline editables -> update inputs in real-time & limit length
+        mainTitle.addEventListener('input', () => {
+            let text = mainTitle.innerText;
+            let cleanText = text.replace(/[\n\r]/g, '');
+            if (cleanText.length > MAX_MAIN) {
+                let truncated = "";
+                let count = 0;
+                for (let char of text) {
+                    if (char === '\n' || char === '\r') {
+                        truncated += char;
+                    } else {
+                        if (count < MAX_MAIN) {
+                            truncated += char;
+                            count++;
+                        }
+                    }
+                }
+                mainTitle.innerText = truncated;
+                const selection = window.getSelection();
+                const newRange = document.createRange();
+                newRange.selectNodeContents(mainTitle);
+                newRange.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            }
+            mainCopyInput.value = mainTitle.innerText;
+        });
+
+        subTitle.addEventListener('input', () => {
+            let text = subTitle.innerText;
+            let cleanText = text.replace(/[\n\r]/g, '');
+            if (cleanText.length > MAX_SUB) {
+                let truncated = "";
+                let count = 0;
+                for (let char of text) {
+                    if (char === '\n' || char === '\r') {
+                        truncated += char;
+                    } else {
+                        if (count < MAX_SUB) {
+                            truncated += char;
+                            count++;
+                        }
+                    }
+                }
+                subTitle.innerText = truncated;
+                const selection = window.getSelection();
+                const newRange = document.createRange();
+                newRange.selectNodeContents(subTitle);
+                newRange.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            }
+            subCopyInput.value = subTitle.innerText;
+        });
+
         checkLimits();
 
         // COLORS
