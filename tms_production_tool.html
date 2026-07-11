@@ -328,7 +328,7 @@
 
                         <div class="device-body">
                             <div class="sender-info">
-                                <img id="payLogoImg" alt="pay_logo" style="width:36px; height:36px; border-radius:12px; object-fit:cover; display:block;">
+                                <img id="payLogoImg" alt="pay_logo" src="로고.png" style="width:36px; height:36px; border-radius:0; object-fit:cover; display:block;">
                                 <div class="sender-name">카카오페이</div>
                             </div>
                             
@@ -398,24 +398,7 @@
 
     <!-- ORIGINAL LOGIC PRESERVED -->
     <script>
-        // Generate pay_logo as inline SVG data URL
-        (function() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 204; canvas.height = 204;
-            const ctx = canvas.getContext('2d');
-            // Yellow circle background
-            ctx.fillStyle = '#FFE300';
-            ctx.beginPath();
-            ctx.arc(102, 102, 102, 0, Math.PI * 2);
-            ctx.fill();
-            // Dark text "pay"
-            ctx.fillStyle = '#3A1D1D';
-            ctx.font = 'bold 72px -apple-system, sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('pay', 102, 108);
-            document.getElementById('payLogoImg').src = canvas.toDataURL('image/png');
-        })();
+
 
         const scaleWrapper = document.getElementById('scaleWrapper');
         const canvasContainer = document.querySelector('.canvas-container');
