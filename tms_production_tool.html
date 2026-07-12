@@ -173,9 +173,9 @@
         .content-layer > * { pointer-events: auto; }
         .tms-layout { display: flex; flex: 1 0 0; flex-direction: column; justify-content: space-between; align-items: flex-start; width: 100%; height: 100%;}
         .top-section { display: flex; width: 680px; flex-direction: column; align-items: flex-start; gap: 30px; }
-        .logo-area { width: 680px; height: 40px; display: flex; align-items: center; justify-content: flex-start; }
+        .logo-area { width: 680px; height: 60px; display: flex; align-items: center; justify-content: flex-start; }
         .logo-img { height: 100%; width: auto; max-width: 100%; object-fit: contain; }
-        .logo-placeholder { color: rgba(255,255,255,0.3); font-size: 15px; font-weight: 600; border: 1px dashed rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 4px; white-space: nowrap;}
+        .logo-placeholder { color: rgba(255,255,255,0.3); font-size: 18px; font-weight: 600; border: 1px dashed rgba(255,255,255,0.3); padding: 6px 12px; border-radius: 4px; white-space: nowrap;}
         .text-area { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; transition: 0.3s; }
         .text-area.swapped { flex-direction: column-reverse; }
         [contenteditable] { outline: none; border-radius: 4px; border: 1px solid transparent; transition: 0.2s; }
@@ -271,7 +271,10 @@
                         <textarea id="mainCopyInput" class="form-textarea" placeholder="메인 카피를 입력해주세요" style="margin-bottom:16px;" maxlength="24"></textarea>
                         
                         <div class="item-label">서브 카피</div>
-                        <textarea id="subCopyInput" class="form-textarea" placeholder="서브 카피를 입력해주세요" style="min-height:60px;" maxlength="15"></textarea>
+                        <textarea id="subCopyInput" class="form-textarea" placeholder="서브 카피를 입력해주세요" style="margin-bottom:16px;" maxlength="15"></textarea>
+
+                        <div class="item-label">심의필 문구</div>
+                        <textarea id="copyInput" class="form-textarea" placeholder="심의필 문구를 입력해주세요" style="min-height:60px;" maxlength="20"></textarea>
                     </div>
 
                     <div id="layoutSection" style="display:none;" class="form-group">
@@ -328,7 +331,7 @@
 
                         <div class="device-body">
                             <div class="sender-info">
-                                <img id="payLogoImg" alt="pay_logo" src="로고.png" style="width:108px; height:108px; border-radius:0; object-fit:cover; display:block;">
+                                <img id="payLogoImg" alt="pay_logo" src="로고.png" style="width:180px; height:180px; border-radius:0; object-fit:cover; display:block;">
                                 <div class="sender-name">카카오페이</div>
                             </div>
                             
@@ -429,6 +432,7 @@
         const textInputSection = document.getElementById('textInputSection');
         const mainCopyInput = document.getElementById('mainCopyInput');
         const subCopyInput = document.getElementById('subCopyInput');
+        const copyInput = document.getElementById('copyInput');
         
         const mainConfigTitle = document.getElementById('mainConfigTitle');
         const tmsTabContainer = document.getElementById('tmsTabContainer');
@@ -557,21 +561,25 @@
         // TEXT LIMITS
         const MAX_MAIN = 24;
         const MAX_SUB = 15;
+        const MAX_COPY = 20;
         const errorMsg = document.getElementById('errorMsg');
 
         function checkLimits() {
             if(currentApp === 'fit') return;
             const mainLen = mainTitle.innerText.replace(/[\n\r]/g, '').length;
             const subLen = subTitle.innerText.replace(/[\n\r]/g, '').length;
+            const copyLen = copyright.innerText.replace(/[\n\r]/g, '').length;
             
-            const isError = (mainLen > MAX_MAIN) || (subLen > MAX_SUB);
+            const isError = (mainLen > MAX_MAIN) || (subLen > MAX_SUB) || (copyLen > MAX_COPY);
             
             if (mainLen > MAX_MAIN) mainTitle.classList.add('error'); else mainTitle.classList.remove('error');
             if (subLen > MAX_SUB) subTitle.classList.add('error'); else subTitle.classList.remove('error');
+            if (copyLen > MAX_COPY) copyright.classList.add('error'); else copyright.classList.remove('error');
 
             if (isError) {
                 btnDlFull.disabled = true; btnDlTrans.disabled = true;
                 errorMsg.classList.add('show');
+                errorMsg.innerText = `글자 수 제한 초과: 메인 ${MAX_MAIN}자, 서브 ${MAX_SUB}자, 심의필 ${MAX_COPY}자를 맞추어주세요.`;
             } else {
                 btnDlFull.disabled = false; btnDlTrans.disabled = false;
                 errorMsg.classList.remove('show');
@@ -600,6 +608,7 @@
         // Initialize textarea values from contenteditable divs
         mainCopyInput.value = mainTitle.innerText;
         subCopyInput.value = subTitle.innerText;
+        copyInput.value = copyright.innerText;
 
         // Input from textarea -> update banner previews
         mainCopyInput.addEventListener('input', () => {
@@ -608,6 +617,10 @@
         });
         subCopyInput.addEventListener('input', () => {
             subTitle.innerText = subCopyInput.value;
+            checkLimits();
+        });
+        copyInput.addEventListener('input', () => {
+            copyright.innerText = copyInput.value;
             checkLimits();
         });
 
@@ -664,6 +677,33 @@
                 selection.addRange(newRange);
             }
             subCopyInput.value = subTitle.innerText;
+        });
+
+        copyright.addEventListener('input', () => {
+            let text = copyright.innerText;
+            let cleanText = text.replace(/[\n\r]/g, '');
+            if (cleanText.length > MAX_COPY) {
+                let truncated = "";
+                let count = 0;
+                for (let char of text) {
+                    if (char === '\n' || char === '\r') {
+                        truncated += char;
+                    } else {
+                        if (count < MAX_COPY) {
+                            truncated += char;
+                            count++;
+                        }
+                    }
+                }
+                copyright.innerText = truncated;
+                const selection = window.getSelection();
+                const newRange = document.createRange();
+                newRange.selectNodeContents(copyright);
+                newRange.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+            }
+            copyInput.value = copyright.innerText;
         });
 
         checkLimits();
