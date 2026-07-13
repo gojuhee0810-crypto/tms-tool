@@ -64,6 +64,7 @@
             color: #333;
         }
         .form-textarea:focus { border-color: #94a3b8; }
+        .form-textarea::placeholder { color: #B5B5B5; opacity: 1; }
         .nav-user { display: flex; align-items: center; gap: 20px; font-size: 13px; }
         .btn-logout { border: 1px solid #444; background: none; color: #ffffff; padding: 6px 14px; border-radius: 16px; font-size: 12px; cursor: pointer; transition: 0.2s; }
         .btn-logout:hover { background: #333; }
@@ -268,15 +269,15 @@
                     <div id="textInputSection" style="display:none;" class="form-group">
                         <div class="section-title">텍스트 입력</div>
                         <div class="item-label">메인 타이틀 (최대 24자)</div>
-                        <textarea id="mainCopyInput" class="form-textarea" placeholder="메인 카피를 입력해주세요" style="margin-bottom:4px;" maxlength="24"></textarea>
+                        <textarea id="mainCopyInput" class="form-textarea" placeholder="메인타이틀을 입력해주세요" style="margin-bottom:4px;" maxlength="24"></textarea>
                         <div id="mainCopyCounter" style="font-size:11px; color:#888; text-align:right; margin-bottom:16px;">0/24</div>
                         
                         <div class="item-label">서브 타이틀 (최대 15자)</div>
-                        <textarea id="subCopyInput" class="form-textarea" placeholder="서브 카피를 입력해주세요" style="margin-bottom:4px;" maxlength="15"></textarea>
+                        <textarea id="subCopyInput" class="form-textarea" placeholder="서브 타이틀을 입력해주세요" style="margin-bottom:4px;" maxlength="15"></textarea>
                         <div id="subCopyCounter" style="font-size:11px; color:#888; text-align:right; margin-bottom:16px;">0/15</div>
 
                         <div class="item-label">심의필 (최대 20자)</div>
-                        <textarea id="copyInput" class="form-textarea" placeholder="심의필 문구를 입력해주세요" style="min-height:60px; margin-bottom:4px;" maxlength="20"></textarea>
+                        <textarea id="copyInput" class="form-textarea" placeholder="심의필을 입력해주세요" style="min-height:60px; margin-bottom:4px;" maxlength="20"></textarea>
                         <div id="copyCounter" style="font-size:11px; color:#888; text-align:right; margin-bottom:16px;">0/20</div>
                     </div>
 
